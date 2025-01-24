@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import edu.ucne.registrootecnicos.Presentation.Tecnico.TecnicoListScreen
 import edu.ucne.registrootecnicos.Presentation.Tecnico.TecnicoScreen
+import edu.ucne.registrootecnicos.Presentation.ticket.TicketListScreen
+import edu.ucne.registrootecnicos.Presentation.ticket.TicketScreen
 import edu.ucne.registrootecnicos.data.local.database.TecnicoDb
 
 @Composable
@@ -23,6 +25,13 @@ fun RegistrooTecnicosNavHost(navHostController: NavHostController, tecnicoDb: Te
             minActiveState = Lifecycle.State.STARTED
         )
 
+    val ticketList by tecnicoDb.ticketDao().getAll()
+        .collectAsStateWithLifecycle(
+            initialValue = emptyList(),
+            lifecycleOwner = lifecycleOwner,
+            minActiveState = Lifecycle.State.STARTED
+        )
+
     NavHost(
         navController = navHostController,
         startDestination = Screen.Home
@@ -30,7 +39,6 @@ fun RegistrooTecnicosNavHost(navHostController: NavHostController, tecnicoDb: Te
         composable<Screen.Home> {
             HomeScreen(
                 gotoTecnico = { navHostController.navigate(Screen.TecnicoList) },
-                gotoPrioridades = { navHostController.navigate(Screen.PrioridadList) },
                 gotoTickets = { navHostController.navigate(Screen.TicketList) }
             )
         }
@@ -43,7 +51,8 @@ fun RegistrooTecnicosNavHost(navHostController: NavHostController, tecnicoDb: Te
                 },
                 editarTecnico = {
                     navHostController.navigate(Screen.Tecnico(it))
-                }
+                },
+                tecnicoDb = tecnicoDb
             )
         }
         composable<Screen.Tecnico> {
@@ -52,11 +61,30 @@ fun RegistrooTecnicosNavHost(navHostController: NavHostController, tecnicoDb: Te
                 tecnicoId = tecnicoId,
                 tecnicoDb = tecnicoDb,
                 onNavigateBack = {
-                    navHostController.popBackStack() // Navega hacia atrás
+                    navHostController.popBackStack()
                 }
             )
         }
-        composable<Screen.PrioridadList> {  }
-        composable<Screen.Prioridad> {  }
+        composable<Screen.TicketList> {
+            TicketListScreen(
+                ticketList = ticketList,
+                onBackClick = { navHostController.popBackStack() },
+                onAddClick = {
+                    navHostController.navigate(Screen.Ticket(0))
+                },
+                editarTicket = {
+                    navHostController.navigate(Screen.Ticket(it))
+                },
+                tecnicoDb
+            )
+        }
+        composable<Screen.Ticket> {
+            val ticketId = it.toRoute<Screen.Ticket>().ticketId
+            TicketScreen(
+                ticketId = ticketId,
+                tecnicoDb = tecnicoDb,
+                onNavigateBack = {navHostController.popBackStack()}
+            )
+        }
     }
 }
