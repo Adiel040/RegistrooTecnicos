@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
@@ -44,6 +45,8 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Upsert
+import edu.ucne.registrootecnicos.Presentation.Navigation.RegistrooTecnicosNavHost
+import edu.ucne.registrootecnicos.data.local.database.TecnicoDb
 import edu.ucne.registrootecnicos.ui.theme.RegistrooTecnicosTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -63,186 +66,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             RegistrooTecnicosTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        TecnicoScreen()
+                        RegistrooTecnicosNavHost(rememberNavController(), tecnicoDb)
                     }
                 }
             }
         }
-    }
-
-
-    @Composable
-    fun TecnicoScreen(
-    ) {
-        var nombre by remember { mutableStateOf("") }
-        var sueldo by remember { mutableStateOf("") }
-        var errorMessage: String? by remember { mutableStateOf(null) }
-
-        Scaffold { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(8.dp)
-            ) {
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-
-                    OutlinedTextField(
-                        label = { Text(text = "Tecnico") },
-                        value = nombre,
-                        onValueChange = { nombre = it },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        label = { Text(text = "Sueldo") },
-                        value = sueldo,
-                        onValueChange = { sueldo = it },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.padding(2.dp))
-                    errorMessage?.let {
-                        Text(text = it, color = Color.Red)
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        OutlinedButton(
-                            onClick = {
-
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "new button"
-                            )
-                            Text(text = "Nuevo")
-                        }
-                        val scope = rememberCoroutineScope()
-                        OutlinedButton(
-                            onClick = {
-                                if (nombre.isBlank())
-                                    errorMessage = "Nombre vacio"
-
-                                scope.launch {
-                                    saveTecnico(
-                                        TecnicoEntity(
-                                            nombre = nombre,
-                                            sueldo = sueldo
-                                        )
-                                    )
-                                    nombre = ""
-                                    sueldo = ""
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "save button"
-                            )
-                            Text(text = "Guardar")
-                        }
-                    }
-                }
-
-
-                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-                val ticketList by tecnicoDb.tecnicoDao().getAll()
-                    .collectAsStateWithLifecycle(
-                        initialValue = emptyList(),
-                        lifecycleOwner = lifecycleOwner,
-                        minActiveState = Lifecycle.State.STARTED
-                    )
-                TecnicoListScreen(ticketList)
-            }
-        }
-    }
-    @Composable
-    fun TecnicoListScreen(tecnicoList: List<TecnicoEntity>) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Spacer(modifier = Modifier.height(32.dp))
-            Text("Listado de Tecnicos")
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(tecnicoList) {
-                    TecnicoRow(it)
-                }
-            }
-        }
-    }
-    @Composable
-    private fun TecnicoRow(it: TecnicoEntity) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(modifier = Modifier.weight(1f), text = it.tecnicoid.toString())
-            Text(
-                modifier = Modifier.weight(2f),
-                text = it.nombre,
-                style = MaterialTheme.typography.headlineLarge
-            )
-            Text(modifier = Modifier.weight(2f), text = it.sueldo)
-        }
-        HorizontalDivider()
-    }
-
-    private suspend fun saveTecnico(tecnico: TecnicoEntity) {
-        tecnicoDb.tecnicoDao().save(tecnico)
-    }
-    @Entity(tableName = "Tecnicos")
-    data class TecnicoEntity(
-        @PrimaryKey
-        val tecnicoid: Int? = null,
-        val nombre: String = "",
-        val sueldo: String = ""
-    )
-
-
-    @Dao
-
-    interface TecnicoDao {
-        @Upsert()
-        suspend fun save(tecnico: TecnicoEntity)
-
-        @Query(
-            """
-        SELECT * 
-        FROM Tecnicos 
-        WHERE tecnicoid=:id  
-        LIMIT 1
-        """
-        )
-        suspend fun find(id: Int): TecnicoEntity?
-
-        @Delete
-        suspend fun delete(tecnico: TecnicoEntity)
-
-        @Query("SELECT * FROM Tecnicos")
-        fun getAll(): Flow<List<TecnicoEntity>>
-    }
-
-    @Database(
-        entities = [
-            TecnicoEntity::class
-        ],
-        version = 1,
-        exportSchema = false
-    )
-    abstract class TecnicoDb : RoomDatabase() {
-        abstract fun tecnicoDao(): TecnicoDao
     }
 }
+
+
+
