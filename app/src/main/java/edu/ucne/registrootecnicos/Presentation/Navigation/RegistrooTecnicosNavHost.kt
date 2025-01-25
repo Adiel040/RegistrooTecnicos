@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import edu.ucne.registrootecnicos.Presentation.Tecnico.TecnicoListScreen
 import edu.ucne.registrootecnicos.Presentation.Tecnico.TecnicoScreen
+import edu.ucne.registrootecnicos.Presentation.ticket.MensajeScreen
 import edu.ucne.registrootecnicos.Presentation.ticket.TicketListScreen
 import edu.ucne.registrootecnicos.Presentation.ticket.TicketScreen
 import edu.ucne.registrootecnicos.data.local.database.TecnicoDb
@@ -72,10 +73,13 @@ fun RegistrooTecnicosNavHost(navHostController: NavHostController, tecnicoDb: Te
                 onAddClick = {
                     navHostController.navigate(Screen.Ticket(0))
                 },
+                onMensajeClick = {
+                    navHostController.navigate(Screen.Mensaje(0))
+                },
                 editarTicket = {
                     navHostController.navigate(Screen.Ticket(it))
                 },
-                tecnicoDb
+                tecnicoDb = tecnicoDb // Asegúrate de incluir este parámetro.
             )
         }
         composable<Screen.Ticket> {
@@ -84,6 +88,13 @@ fun RegistrooTecnicosNavHost(navHostController: NavHostController, tecnicoDb: Te
                 ticketId = ticketId,
                 tecnicoDb = tecnicoDb,
                 onNavigateBack = {navHostController.popBackStack()}
+            )
+        }
+        composable<Screen.Mensaje> {
+            val mensajeId = it.toRoute<Screen.Mensaje>().mensajeId
+            MensajeScreen(
+                mensajeId = mensajeId,
+                tecnicoDb = tecnicoDb,
             )
         }
     }
