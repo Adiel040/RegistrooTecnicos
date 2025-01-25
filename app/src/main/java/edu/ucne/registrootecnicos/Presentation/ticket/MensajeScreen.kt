@@ -27,7 +27,6 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
     var messageText by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
 
-    // Obtener técnicos y mensajes desde la base de datos usando Flow
     val tecnicos by tecnicoDb.tecnicoDao().getAll().collectAsState(initial = emptyList())
     val messages by tecnicoDb.mensajeDao().getAll().collectAsState(initial = emptyList())
 
@@ -37,7 +36,7 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Chat con Técnicos") }
+                title = { Text(text = "Chat Sobre Tickets") }
             )
         }
     ) { paddingValues ->
@@ -46,7 +45,6 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Lista de mensajes
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
@@ -61,7 +59,6 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                 }
             }
 
-            // Input de texto y selector de técnico
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -72,7 +69,6 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                     style = MaterialTheme.typography.bodyLarge
                 )
 
-                // Selector de técnico
                 Box(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -101,7 +97,6 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                     }
                 }
 
-                // Input de mensaje y botón para enviar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -125,7 +120,7 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                                         tecnicoid = selectedTecnicoId
                                     )
                                     tecnicoDb.mensajeDao().save(newMessage)
-                                    messageText = "" // Limpiar campo
+                                    messageText = ""
                                 }
                             }
                         }
@@ -141,7 +136,6 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MessageItem(message: MensajeEntity, tecnicoNombre: String) {
-    // Formatear la fecha actual
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
     val formattedDate = LocalDateTime.now().format(formatter)
 
