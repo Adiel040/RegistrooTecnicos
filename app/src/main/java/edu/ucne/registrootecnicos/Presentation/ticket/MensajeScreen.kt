@@ -25,11 +25,12 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
     var messageText by remember { mutableStateOf("") }
-    val messages = remember { mutableStateListOf<MensajeEntity>() }
     val scope = rememberCoroutineScope()
 
+    // Obtener técnicos y mensajes desde la base de datos usando Flow
+    val tecnicos by tecnicoDb.tecnicoDao().getAll().collectAsState(initial = emptyList())
+    val messages by tecnicoDb.mensajeDao().getAll().collectAsState(initial = emptyList())
 
-    val tecnicos = tecnicoDb.tecnicoDao().getAll().collectAsState(initial = emptyList())
     var selectedTecnicoId by remember { mutableStateOf(0) }
     var expanded by remember { mutableStateOf(false) }
 
@@ -45,6 +46,7 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            // Lista de mensajes
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
@@ -54,11 +56,12 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
             ) {
                 items(messages.size) { index ->
                     val message = messages[index]
-                    val tecnicoNombre = tecnicos.value.find { it.tecnicoid == message.tecnicoid }?.nombre ?: "Desconocido"
+                    val tecnicoNombre = tecnicos.find { it.tecnicoid == message.tecnicoid }?.nombre ?: "Desconocido"
                     MessageItem(message = message, tecnicoNombre = tecnicoNombre)
                 }
             }
 
+            // Input de texto y selector de técnico
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -69,6 +72,7 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                     style = MaterialTheme.typography.bodyLarge
                 )
 
+                // Selector de técnico
                 Box(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -77,7 +81,7 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = tecnicos.value.find { it.tecnicoid == selectedTecnicoId }?.nombre
+                            text = tecnicos.find { it.tecnicoid == selectedTecnicoId }?.nombre
                                 ?: "Selecciona un técnico"
                         )
                     }
@@ -85,7 +89,7 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        tecnicos.value.forEach { tecnico ->
+                        tecnicos.forEach { tecnico ->
                             DropdownMenuItem(
                                 onClick = {
                                     selectedTecnicoId = tecnico.tecnicoid!!
@@ -97,6 +101,7 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                     }
                 }
 
+                // Input de mensaje y botón para enviar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -120,9 +125,7 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
                                         tecnicoid = selectedTecnicoId
                                     )
                                     tecnicoDb.mensajeDao().save(newMessage)
-
-                                    messages.add(0, newMessage)
-                                    messageText = ""
+                                    messageText = "" // Limpiar campo
                                 }
                             }
                         }
@@ -139,9 +142,8 @@ fun MensajeScreen(tecnicoDb: TecnicoDb, mensajeId: Int) {
 @Composable
 fun MessageItem(message: MensajeEntity, tecnicoNombre: String) {
     // Formatear la fecha actual
-    val currentDate = LocalDateTime.now()
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-    val formattedDate = currentDate.format(formatter)
+    val formattedDate = LocalDateTime.now().format(formatter)
 
     val isOwner = tecnicoNombre == "Owner"
 
