@@ -1,9 +1,11 @@
 package edu.ucne.registrootecnicos
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,14 +47,17 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Upsert
+import dagger.hilt.android.AndroidEntryPoint
 import edu.ucne.registrootecnicos.Presentation.Navigation.RegistrooTecnicosNavHost
 import edu.ucne.registrootecnicos.data.local.database.TecnicoDb
 import edu.ucne.registrootecnicos.ui.theme.RegistrooTecnicosTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var tecnicoDb: TecnicoDb
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
