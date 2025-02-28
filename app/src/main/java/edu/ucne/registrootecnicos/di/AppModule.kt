@@ -14,7 +14,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object AppModule {
-    const val BASE_URL = "link-de-la-api"
+    const val BASE_URL = "https://registrootecnico-ehd5dsb2c4bebba4.eastus2-01.azurewebsites.net/"
+    
 
     @Provides
     @Singleton
