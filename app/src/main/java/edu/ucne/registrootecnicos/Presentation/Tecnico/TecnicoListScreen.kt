@@ -26,12 +26,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.registrootecnicos.data.local.database.TecnicoDb
 import edu.ucne.registrootecnicos.data.local.entities.TecnicoEntity
+import edu.ucne.registrootecnicos.data.remote.dto.TecnicoDto
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,9 +44,10 @@ fun TecnicoListScreen(
     tecnicoList: List<TecnicoEntity>,
     onBackClick: () -> Unit, onAddClick: () -> Unit,
     editarTecnico: (Int) -> Unit,
-    tecnicoDb: TecnicoDb
+    tecnicoDb: TecnicoDb,
+    viewModel: TecnicoViewModel = hiltViewModel()
 ) {
-
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -71,7 +76,7 @@ fun TecnicoListScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(tecnicoList) {
+                items(uiState.tecnicos) {
                     TecnicoRow(tecnicoDb, it, editarTecnico, eliminarTecnico = {})
                 }
             }
@@ -79,7 +84,7 @@ fun TecnicoListScreen(
     }
 }
 @Composable
-private fun TecnicoRow(tecnicoDb: TecnicoDb, it: TecnicoEntity, editarTecnico: (Int) -> Unit, eliminarTecnico: (Int) -> Unit) {
+private fun TecnicoRow(tecnicoDb: TecnicoDb, it: TecnicoDto, editarTecnico: (Int) -> Unit, eliminarTecnico: (Int) -> Unit) {
    val scope = rememberCoroutineScope()
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -126,6 +131,6 @@ private fun TecnicoRow(tecnicoDb: TecnicoDb, it: TecnicoEntity, editarTecnico: (
     Divider(modifier = Modifier.padding(vertical = 4.dp))
 }
 
-suspend fun deleteTecnico(tecnicoDb: TecnicoDb, tecnico: TecnicoEntity) {
-    tecnicoDb.tecnicoDao().delete(tecnico)
+suspend fun deleteTecnico(tecnicoDb: TecnicoDb, tecnico: TecnicoDto) {
+    //tecnicoDb.tecnicoDao().delete(tecnico)
 }
