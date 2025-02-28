@@ -1,5 +1,7 @@
 package edu.ucne.registrootecnicos.Presentation.Navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.Lifecycle
@@ -15,6 +17,7 @@ import edu.ucne.registrootecnicos.Presentation.ticket.TicketListScreen
 import edu.ucne.registrootecnicos.Presentation.ticket.TicketScreen
 import edu.ucne.registrootecnicos.data.local.database.TecnicoDb
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RegistrooTecnicosNavHost(navHostController: NavHostController, tecnicoDb: TecnicoDb){
 
