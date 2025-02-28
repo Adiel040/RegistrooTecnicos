@@ -14,8 +14,7 @@ import edu.ucne.registrootecnicos.data.local.entities.TicketEntity
         TecnicoEntity::class,
         TicketEntity::class,
         MensajeEntity::class
-    ],
-    version = 4,
+    ], version = 5,
     exportSchema = false
 )
 abstract class TecnicoDb : RoomDatabase() {
